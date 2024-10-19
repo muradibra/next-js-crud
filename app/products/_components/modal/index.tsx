@@ -24,39 +24,53 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useState } from "react";
 import { toast } from "sonner";
+import { Edit2Icon } from "lucide-react";
+import { TProduct } from "@/types";
 
 type Props = {
   type?: "create" | "update";
+  editedProduct?: TProduct;
 };
 
 const formSchema = z.object({
   title: z.string().min(3, "Min 3 characters"),
   description: z.string().min(3, "Min 3 characters"),
   price: z.preprocess(
-    (a) => parseFloat(z.string().parse(a)),
+    (a) => parseFloat(z.any().parse(a)),
     z.number().gte(0.01, "Min 0.01 and above")
   ),
 });
 
-export const ProductModal = ({ type = "create" }: Props) => {
+export const ProductModal = ({ type = "create", editedProduct }: Props) => {
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const triggerLabel = type === "create" ? "Add Product" : "Edit Product";
+  const triggerLabel =
+    type === "create" ? "Add Product" : <Edit2Icon className="w-4 h-4" />;
   const title = type === "create" ? "Add Product" : "Edit Product";
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      title: "",
-      description: "",
-      price: 0,
+      title: editedProduct?.title ?? "",
+      description: editedProduct?.description ?? "",
+      price: editedProduct?.price ?? 0,
     },
   });
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log(form.formState.errors);
-
+    // console.log(form.formState.errors);
     setIsLoading(true);
+
+    if (type === "create") {
+      await handleCreate(values);
+    } else {
+      console.log("update");
+      handleUpdate(values);
+    }
+    setIsLoading(false);
+  }
+
+  async function handleCreate(values: z.infer<typeof formSchema>) {
     const resp = await fetch("http://localhost:3000/api/products", {
       method: "POST",
       headers: {
@@ -71,13 +85,35 @@ export const ProductModal = ({ type = "create" }: Props) => {
     } else {
       toast.error("An error occurred. Please try again.");
     }
-    setIsLoading(false);
+  }
+
+  async function handleUpdate(values: z.infer<typeof formSchema>) {
+    if (!editedProduct) return;
+    const resp = await fetch(
+      `http://localhost:3000/api/products/${editedProduct?.id}`,
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(values),
+      }
+    );
+    if (resp.status === 200) {
+      setIsOpen(false);
+      toast.success("Product updated successfully.");
+    } else {
+      toast.error("An error occurred. Please try again.");
+    }
+    // console.log(await resp.json());
   }
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button variant={"outline"}>{triggerLabel}</Button>
+        <Button className="px-[10px] py-1" variant={"outline"}>
+          {triggerLabel}
+        </Button>
       </DialogTrigger>
       <DialogContent className="w-[420px]">
         <DialogHeader>

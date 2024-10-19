@@ -3,9 +3,10 @@ import { ProductTable } from "./_components/table";
 import { ProductModal } from "./_components/modal";
 
 const ProductsPage = async () => {
-  const resp = await fetch("http://localhost:3000/api/products");
+  const resp = await fetch("http://localhost:3000/api/products", {
+    cache: "no-store",
+  });
   const { products } = await resp.json();
-  console.log(products);
 
   return (
     <div className="max-w-screen-lg py-10 mx-auto">

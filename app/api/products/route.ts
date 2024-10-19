@@ -18,10 +18,7 @@ export async function POST(req: NextRequest) {
     imageUrl: data.imageUrl,
   };
 
-  // console.log(data);
-
   products.push(product);
-  // console.log(products);
 
   return Response.json(
     { message: "Product created successfully.", product },
