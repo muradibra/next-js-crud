@@ -6,7 +6,6 @@ export async function PUT(
   { params }: { params: { id: string } }
 ) {
   try {
-    const { id } = params;
     const { title, description, price } = await req.json();
     if (!title || !description || !price) {
       return Response.json(
@@ -30,6 +29,7 @@ export async function PUT(
       updatedProduct,
     });
   } catch (error) {
+    console.log(error);
     return Response.json({ error: "An error occurred." }, { status: 500 });
   }
 }
