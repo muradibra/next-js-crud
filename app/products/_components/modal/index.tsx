@@ -42,6 +42,7 @@ const formSchema = z.object({
 });
 
 export const ProductModal = ({ type = "create", editedProduct }: Props) => {
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const triggerLabel =
@@ -71,7 +72,7 @@ export const ProductModal = ({ type = "create", editedProduct }: Props) => {
   }
 
   async function handleCreate(values: z.infer<typeof formSchema>) {
-    const resp = await fetch("http://localhost:3000/api/products", {
+    const resp = await fetch(`${apiUrl}/products`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -89,16 +90,13 @@ export const ProductModal = ({ type = "create", editedProduct }: Props) => {
 
   async function handleUpdate(values: z.infer<typeof formSchema>) {
     if (!editedProduct) return;
-    const resp = await fetch(
-      `http://localhost:3000/api/products/${editedProduct?.id}`,
-      {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(values),
-      }
-    );
+    const resp = await fetch(`${apiUrl}/products/${editedProduct?.id}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(values),
+    });
     if (resp.status === 200) {
       setIsOpen(false);
       toast.success("Product updated successfully.");

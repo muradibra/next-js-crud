@@ -11,11 +11,12 @@ type Props = {
 };
 
 export const ProductDeleteAction = ({ id }: Props) => {
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
   const [isLoading, setIsLoading] = useState(false);
 
   async function handleDelete() {
     setIsLoading(true);
-    const resp = await fetch(`http://localhost:3000/api/products/${id}`, {
+    const resp = await fetch(`${apiUrl}/products/${id}`, {
       method: "DELETE",
     });
 

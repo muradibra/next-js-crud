@@ -3,7 +3,8 @@ import { ProductTable } from "./_components/table";
 import { ProductModal } from "./_components/modal";
 
 const ProductsPage = async () => {
-  const resp = await fetch("http://localhost:3000/api/products", {
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+  const resp = await fetch(`${apiUrl}/products`, {
     cache: "no-store",
   });
   const { products } = await resp.json();
